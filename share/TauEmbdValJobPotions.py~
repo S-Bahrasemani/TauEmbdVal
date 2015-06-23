@@ -1,0 +1,38 @@
+
+## JobOptions for Tau embedding validation :
+
+## imports 
+import AthenaPoolCnvSvc.ReadAthenaPool
+from TauEmbdVal.TauEmbdValConf import TauEmbdValAlg
+
+svcMgr.EventSelector.InputCollections = ["/cluster/warehouse/sbahrase/WorkDesk/AOD_reco_gg_H_100_test.pool.root.1"]
+
+## specify the number of events to be proccesed:
+theApp.EvtMax = 100
+
+
+algseq = CfgMgr.AthSequencer("AthAlgSeq")
+algseq += CfgMgr.TauEmbdValAlg()
+
+## instanciate your algorithm (python object which lives in genConf/../)
+embdvalalg = TauEmbdValAlg()
+
+## Define your output file name and stream name
+rootStreamName = "TauEmbdValHistoStream"
+rootFileName   = "TauEmbdValHists.root"
+embdvalalg.RootStreamName   = rootStreamName
+embdvalalg.RootDirName      = "/Hists"
+
+## add your algorithm to the sequencer
+# fetch the  AthAlgSeq, one of the master sequences where all algs should be added to
+
+## Define your output root file using MultipleStreamManager
+# ====================================================================
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+MyFirstHistoXAODStream = MSMgr.NewRootStream( rootStreamName, rootFileName )
+
+
+print embdvalalg.OutputLevel
+algseq += CfgMgr.embdvalalg()
+
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="5525268E-CD0B-A04B-9DCE-E6A701A0CAB1">
+    <physical>
+      <pfn filetype="ROOT_All" name="/cluster/warehouse/sbahrase/Samples/AOD_reco_gg_H_100_test.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>
