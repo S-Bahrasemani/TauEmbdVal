@@ -1,6 +1,6 @@
-## automatically generated CMT requirements file
+
 package TauEmbdVal
-author  sbahrase
+author  Sina Bahrasemani <sina.bahrasemani@cern.ch>
 
 ## for athena policies: this has to be the first use statement
 use AtlasPolicy 	AtlasPolicy-*
