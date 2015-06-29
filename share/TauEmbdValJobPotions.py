@@ -2,9 +2,10 @@
 ## JobOptions for Tau embedding validation :
 
 ## imports 
-import AthenaPoolCnvSvc.ReadAthenaPool
 from TauEmbdVal.TauEmbdValConf import TauEmbdValAlg
 
+## read xAOD or ESD files
+import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections = ["/cluster/warehouse/sbahrase/Samples/AOD_reco_gg_H_100_test.pool.root.1"]
 
 ## specify the number of events to be proccesed:
@@ -30,6 +31,4 @@ algseq += embdvalalg
 # ====================================================================
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 TauEmbdValHistoStream = MSMgr.NewRootStream( rootStreamName, rootFileName )
-
-
 
