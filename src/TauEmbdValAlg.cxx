@@ -1,102 +1,205 @@
 
 // TauEmbdVal includes
 #include "TauEmbdVal/TauEmbdValAlg.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODMuon/MuonContainer.h"
 
-//#include "xAODMissingET/MissingETContainer"
+namespace TauEmbd{
 
-TauEmbdValAlg::TauEmbdValAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthHistogramAlgorithm( name, pSvcLocator ){
-  //declareProperty( "Property", m_nProperty ); //example property declaration
-
-  // add 
-
-}
-
-
-
-TauEmbdValAlg::~TauEmbdValAlg() {}
-StatusCode TauEmbdValAlg::initialize() {
-  //// Book TAUS histograms
-  CHECK( book(TH1F("hist_tauPt", "Tau Pt (GeV)", 30, 0.0, 300.0)));
-  CHECK (book(TH1F("hist_tauEta", "Tau Eta", 20, -10.0, 10.0)));
-  CHECK (book(TH1F("hist_tauPhi", "Tau Phi", 200, -3.75, 3.75)));
-  CHECK (book(TH1F("hist_tauM", "Tau M ", 30, 0.0, 200.0)));
-  CHECK( book( TH1F("hist_nTaus", "Number of taus", 10, 0.0, 10.0) ) );
- 
-  //// book MUON histograms
-
-  CHECK( book(TH1F("hist_muonPt", "Muon Pt (GeV)", 30, 0.0, 300.0)));
-  CHECK (book(TH1F("hist_muonEta", "Muon Eta", 20, -10.0, 10.0)));
-  CHECK (book(TH1F("hist_muonPhi", "Muon Phi", 200, -3.75, 3.75)));
-  CHECK (book(TH1F("hist_muonM", "Muon M ", 30, 0.0, 200.0)));
-  CHECK( book( TH1F("hist_nMuons", "Number of muons", 10, 0.0, 10.0) ) );
- 
-
-  //// Book JETS histograms
-  CHECK( book(TH1F("hist_jetPt", "Jet Pt (GeV)", 30, 0.0, 300.0)));
-  CHECK (book(TH1F("hist_jetEta", "Jet Eta", 20, -10.0, 10.0)));
-  CHECK (book(TH1F("hist_jetPhi", "Jet Phi", 200, -3.75, 3.75)));
-  CHECK (book(TH1F("hist_jetM", "Jet M ", 30, 0.0, 200.0)));
-  CHECK( book( TH1F("hist_nJets", "Number of jets", 10, 0.0, 10.0) ) );
-
-  ATH_MSG_INFO ("Booking HISTOGRAMS:: " << name() << "...");
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauEmbdValAlg::execute() {
-  // Retrieve the taus:
-  const xAOD::TauJetContainer* taus = 0;
-  CHECK( evtStore()->retrieve( taus, "TauJets" ) );
-
-  // Loop over them:
-  for( const auto* tau : *taus ) {
-     hist("hist_tauPt")->Fill( (tau->pt())/1000);
-     hist("hist_tauEta")->Fill( tau->eta());
-     hist("hist_tauPhi")->Fill( tau->phi());
-     hist("hist_tauM")->Fill( (tau->m())/1000);		   
- }
-  hist("hist_nTaus")->Fill( taus->size());
-
-
-  // Retrieve the muons:
-  const xAOD::MuonContainer* muons = 0;
-  CHECK( evtStore()->retrieve( muons, "Muons" ) );
-  //// for muon "Muons"
-
-  // Loop over them:
-  for( const auto* muon : *muons ) {
-     hist("hist_muonPt")->Fill( (muon->pt())/1000);
-     hist("hist_muonEta")->Fill( muon->eta());
-     hist("hist_muonPhi")->Fill( muon->phi());
-     hist("hist_muonM")->Fill( (muon->m())/1000);		   
- }
-  hist("hist_nMuons")->Fill( muons->size());
-
-  //// retrive the jets
-  const xAOD::JetContainer* jets = 0;
-  CHECK (evtStore()->retrieve(jets,"AntiKt4LCTopoJets" ));
-
-  ////Loop over them:
-  for ( const auto*  jet : *jets ) {
-
-     hist("hist_jetPt")->Fill( (jet->pt())/1000);
-     hist("hist_jetEta")->Fill( jet->eta());
-     hist("hist_jetPhi")->Fill( jet->phi());
-     hist("hist_jetM")->Fill( (jet->m())/1000);		   
+// Constructor
+////////////////
+  TauEmbdVal::TauEmbdVal( const std::string& type, 
+				  const std::string& name, 
+				  const IInterface* parent ) : 
+    ManagedMonitorToolBase( type, name, parent ),
+    m_jetPlots(0, "Summary/Jet/", "Jet"),
+    m_elecPlots(0, "Summary/Electron/", "Electron"),
+    m_photonPlots(0, "Summary/Photon/", "Photon"),
+    m_muonPlots(0, "Summary/Muon/", "Muon"),
+    m_tauPlots(0, "Summary/Tau/", "Tau"),
+    m_trkvtxPlots(0, "Summary/TrackAndVertex/"),
+    m_metPlots(0, "Summary/MET/", "RefFinal"),
+    m_btagPlots(0, "Summary/BTag/", "IP3D")
+  {
+    
+    declareProperty( "JetContainerName", m_jetName = "AntiKt4EMTopoJets" );
+    declareProperty( "ElectronContainerName", m_elecName = "ElectronCollection" ); 
+    declareProperty( "PhotonContainerName", m_photonName = "PhotonCollection" ); 
+    declareProperty( "MuonContainerName", m_muonName = "Muons" ); 
+    declareProperty( "TauContainerName", m_tauName = "TauRecContainer" );
+    declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );  
+    declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );  
+    declareProperty( "METContainerName", m_metName = "MET_RefFinal" ); 
   }
-  hist("hist_nJets")->Fill( jets->size());
+  
+  // Destructor
+  ///////////////
+  TauEmbdVal::~TauEmbdVal()
+  {}
+  
+  // Athena algtool's Hooks
+  ////////////////////////////
+  StatusCode TauEmbdVal::initialize()
+  {
+    ATH_MSG_INFO ("Initializing " << name() << "...");    
+    ATH_CHECK(ManagedMonitorToolBase::initialize());
+    
+    return StatusCode::SUCCESS;
+  }
+  
+  StatusCode TauEmbdVal::book(PlotBase& plots)
+  {
+    plots.initialize();
+    std::vector<HistData> hists = plots.retrieveBookedHistograms();
+    
+    for (auto& hist : hists){
+      ATH_MSG_INFO ("Initializing " << hist.first << " " << hist.first->GetName() << " " << hist.second << "...");
+      ATH_CHECK(regHist(hist.first,hist.second,all));
+    }
+    return StatusCode::SUCCESS;      
+  }
 
-  ATH_MSG_INFO ("Filling HISTOGRAMS'S DONE:: " << name() << "...");
-  return StatusCode::SUCCESS;
+  StatusCode TauEmbdVal::bookHistograms()
+ {
+      ATH_MSG_INFO ("Booking hists " << name() << "...");      
+
+      if (m_detailLevel >= 10) {
+	ATH_CHECK(book(m_jetPlots));
+	ATH_CHECK(book(m_btagPlots));
+ 	ATH_CHECK(book(m_elecPlots));
+ 	ATH_CHECK(book(m_photonPlots));
+ 	ATH_CHECK(book(m_muonPlots));
+ 	ATH_CHECK(book(m_tauPlots));
+ 	ATH_CHECK(book(m_trkvtxPlots));
+ 	ATH_CHECK(book(m_metPlots));
+      }
+
+      for (auto name : m_timingNames) {
+	if (name == "EVNTtoHITS") {
+	  m_timingPlots.push_back(new TH1F(("Timing" + name).c_str(), ("Timing" + name).c_str(), 10000, 0, 10000));
+	} else {
+	  m_timingPlots.push_back(new TH1F(("Timing" + name).c_str(), ("Timing" + name).c_str(), 10000, 0, 100));
+	}
+	ATH_CHECK(regHist(m_timingPlots.back(), "Summary/Timing/" + name,all));
+      }
+      
+      return StatusCode::SUCCESS;      
+ }
+ 
+  StatusCode TauEmbdVal::fillHistograms()
+  {
+    ATH_MSG_INFO ("Filling hists " << name() << "...");
+    
+    if (m_detailLevel < 10) return StatusCode::SUCCESS;
+    
+    // Jets
+    int nbtag(0);
+    m_jetPlots.initializeEvent();
+    const xAOD::JetContainer* jets(0);
+    ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
+    for (auto jet : *jets) {
+      m_jetPlots.fill(jet);
+      const xAOD::BTagging* btag = jet->btagging();
+      if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
+    }
+    m_jetPlots.fill();
+    m_btagPlots.fill(nbtag);
+
+    // Electrons
+    m_elecPlots.initializeEvent();
+    const xAOD::ElectronContainer* electrons(0);
+    ATH_CHECK(evtStore()->retrieve(electrons, m_elecName));
+    for (auto elec : *electrons) m_elecPlots.fill(elec);
+    m_elecPlots.fill();
+
+    // Photons
+    m_photonPlots.initializeEvent();
+    const xAOD::PhotonContainer* photons(0);
+    ATH_CHECK(evtStore()->retrieve(photons, m_photonName));
+    for (auto photon : *photons) m_photonPlots.fill(photon);
+    m_photonPlots.fill();
+
+    // Muons
+    m_muonPlots.initializeEvent();
+    const xAOD::MuonContainer* muons(0);
+    ATH_CHECK(evtStore()->retrieve(muons, m_muonName));
+    for (auto muon : *muons) m_muonPlots.fill(muon);
+    m_muonPlots.fill();
+
+    // Taus
+    m_tauPlots.initializeEvent();
+    const xAOD::TauJetContainer* taus(0);
+    ATH_CHECK(evtStore()->retrieve(taus, m_tauName));
+    for (auto tau : *taus) m_tauPlots.fill(tau);
+    m_tauPlots.fill();
+
+    // Tracks/Vertices
+    const xAOD::TrackParticleContainer* trks(0);
+    ATH_CHECK(evtStore()->retrieve(trks, m_trackName));
+
+    const xAOD::VertexContainer* vtxs(0);
+    ATH_CHECK(evtStore()->retrieve(vtxs, m_vertexName));
+    for (auto vtx : *vtxs) m_trkvtxPlots.fill(vtx);
+
+    const xAOD::EventInfo* event(0);
+    ATH_CHECK(evtStore()->retrieve(event, "EventInfo"));
+
+    m_trkvtxPlots.fill(trks->size(), vtxs->size(), event->averageInteractionsPerCrossing());
+
+    const xAOD::MissingETContainer* met_container (0);
+    ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
+    const xAOD::MissingET* met = (*met_container)["FinalClus"];
+    if (!met) {
+      ATH_MSG_ERROR ("Couldn't retrieve MET Final");
+      return StatusCode::SUCCESS;
+    }
+    m_metPlots.fill(met);
+    
+    int i(0);
+    for (auto name : m_timingNames) {
+      float time;
+      if (getTiming(name, time).isSuccess()) {
+	m_timingPlots[i]->Fill(time);
+      }
+      ++i;
+    }
+    
+    return StatusCode::SUCCESS;
+  }
+  
+  StatusCode TauEmbdVal::procHistograms()
+  {
+    ATH_MSG_INFO ("Finalising hists " << name() << "...");
+    return StatusCode::SUCCESS;
+  }
+  
+  
+  StatusCode TauEmbdVal::getTiming(std::string name, float& recoTime) {
+    // Code form
+    // m_recoInclPers
+    
+    const RecoTimingObj* recTiming(0);
+    recoTime = 0;
+    if (evtStore()->contains<RecoTimingObj>(name + "_timings")) {
+      if (evtStore()->retrieve( recTiming, name + "_timings" ).isFailure()) {
+	ATH_MSG_VERBOSE("Cannot get RecoTimingObj with name " << name + "_timings");
+	return StatusCode::SUCCESS;
+      }
+      
+      bool m_recoInclPers(true);
+      if (m_recoInclPers) {
+	if ((*recTiming).size() > 0) 
+	  recoTime=*((*recTiming).rbegin());
+      } else {
+	if ((*recTiming).size() > 1)
+	  recoTime=(*recTiming)[(*recTiming).size()-2];
+      }
+    }
+    
+    ATH_MSG_VERBOSE("Filling RecoTiming <" << recoTime << ">.");
+    
+    return StatusCode::SUCCESS;
+  }
+  
+
 }
 
-StatusCode TauEmbdValAlg::finalize() {  
-
-  ATH_MSG_DEBUG ("Executing " << name() << "...");
-  return StatusCode::SUCCESS;
-}
-
-
+// //  LocalWords:  str 
