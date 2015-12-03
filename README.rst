@@ -1,15 +1,12 @@
 
-
 .. -*- mode: rst -*-
 
 Setup
 -----
-* Setup athena ::
-
+  * in the directory containing TauEmbdVal package do::
   setupATLAS
-  asetup AthAnalysisBase 2.3.11, here 
+  asetup, here 
    
-
 Input
 ----
 * To specify the input xAOD files ::
@@ -23,11 +20,7 @@ _____
 
 * To set the output stream and to save the output histograms in a root file, 
 change the fllowing lines ::
-
-rootStreamName = "TauEmbdValHistoStream"
-rootFileName   = "TauEmbdValHists.root"
-embdvalalg.RootStreamName   = rootStreamName
-embdvalalg.RootDirName      = "/Hists"
+svcMgr.THistSvc.Output += ["TauEmbdVal DATAFILE='Test01.root' OPT='RECREATE'"]
 
 Run
 --- 

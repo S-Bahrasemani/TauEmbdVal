@@ -1,4 +1,4 @@
-#Mon Nov 23 16:16:35 2015"""Automatically generated. DO NOT EDIT please"""
+#Wed Nov 25 11:36:00 2015"""Automatically generated. DO NOT EDIT please"""
 from GaudiKernel.GaudiHandles import *
 from GaudiKernel.Proxy.Configurable import *
 
@@ -21,6 +21,7 @@ class TauEmbd__TauEmbdVal( ConfigurableAlgTool ) :
     'TriggerGroup' : '', # str
     'ManagerName' : 'AthenaMonManager', # str
     'TrigDecisionTool' : PublicToolHandle(''), # GaudiHandle
+    'TriggerTranslatorTool' : PublicToolHandle(''), # GaudiHandle
     'FilterTools' : PublicToolHandleArray([]), # GaudiHandleArray
     'EnableLumi' : False, # bool
     'DetailLevel' : 1, # int
@@ -31,7 +32,7 @@ class TauEmbd__TauEmbdVal( ConfigurableAlgTool ) :
     'ElectronContainerName' : 'ElectronCollection', # str
     'PhotonContainerName' : 'PhotonCollection', # str
     'MuonContainerName' : 'Muons', # str
-    'TauContainerName' : 'TauRecContainer', # str
+    'TauContainerName' : 'TauJets', # str
     'TrackContainerName' : 'InDetTrackParticles', # str
     'VertexContainerName' : 'PrimaryVertices', # str
     'METContainerName' : 'MET_RefFinal', # str

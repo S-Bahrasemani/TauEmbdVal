@@ -10,21 +10,21 @@ namespace TauEmbd{
 				  const std::string& name, 
 				  const IInterface* parent ) : 
     ManagedMonitorToolBase( type, name, parent ),
-    m_jetPlots(0, "Summary/Jet/", "Jet"),
-    m_elecPlots(0, "Summary/Electron/", "Electron"),
-    m_photonPlots(0, "Summary/Photon/", "Photon"),
-    m_muonPlots(0, "Summary/Muon/", "Muon"),
-    m_tauPlots(0, "Summary/Tau/", "Tau"),
-    m_trkvtxPlots(0, "Summary/TrackAndVertex/"),
-    m_metPlots(0, "Summary/MET/", "RefFinal"),
-    m_btagPlots(0, "Summary/BTag/", "IP3D")
+    m_jetPlots(0, "Jet/", "Jet"),
+    m_elecPlots(0, "Electron/", "Electron"),
+    m_photonPlots(0, "Photon/", "Photon"),
+    m_muonPlots(0, "Muon/", "Muon"),
+    m_tauPlots(0, "Tau/", "Tau"),
+    m_trkvtxPlots(0, "TrackAndVertex/"),
+    m_metPlots(0, "MET/", "RefFinal"),
+    m_btagPlots(0, "BTag/", "IP3D")
   {
     
     declareProperty( "JetContainerName", m_jetName = "AntiKt4EMTopoJets" );
     declareProperty( "ElectronContainerName", m_elecName = "ElectronCollection" ); 
     declareProperty( "PhotonContainerName", m_photonName = "PhotonCollection" ); 
     declareProperty( "MuonContainerName", m_muonName = "Muons" ); 
-    declareProperty( "TauContainerName", m_tauName = "TauRecContainer" );
+    declareProperty( "TauContainerName", m_tauName = "TauJets" );
     declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );  
     declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );  
     declareProperty( "METContainerName", m_metName = "MET_RefFinal" ); 
@@ -41,7 +41,6 @@ namespace TauEmbd{
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");    
     ATH_CHECK(ManagedMonitorToolBase::initialize());
-    
     return StatusCode::SUCCESS;
   }
   
@@ -58,28 +57,17 @@ namespace TauEmbd{
   }
 
   StatusCode TauEmbdVal::bookHistograms()
- {
+  {
       ATH_MSG_INFO ("Booking hists " << name() << "...");      
 
-      if (m_detailLevel >= 10) {
-	ATH_CHECK(book(m_jetPlots));
-	ATH_CHECK(book(m_btagPlots));
- 	ATH_CHECK(book(m_elecPlots));
- 	ATH_CHECK(book(m_photonPlots));
- 	ATH_CHECK(book(m_muonPlots));
- 	ATH_CHECK(book(m_tauPlots));
- 	ATH_CHECK(book(m_trkvtxPlots));
- 	ATH_CHECK(book(m_metPlots));
-      }
-
-      for (auto name : m_timingNames) {
-	if (name == "EVNTtoHITS") {
-	  m_timingPlots.push_back(new TH1F(("Timing" + name).c_str(), ("Timing" + name).c_str(), 10000, 0, 10000));
-	} else {
-	  m_timingPlots.push_back(new TH1F(("Timing" + name).c_str(), ("Timing" + name).c_str(), 10000, 0, 100));
-	}
-	ATH_CHECK(regHist(m_timingPlots.back(), "Summary/Timing/" + name,all));
-      }
+      ATH_CHECK(book(m_jetPlots));
+      ATH_CHECK(book(m_btagPlots));
+      ATH_CHECK(book(m_elecPlots));
+      ATH_CHECK(book(m_photonPlots));
+      ATH_CHECK(book(m_muonPlots));
+      ATH_CHECK(book(m_tauPlots));
+      ATH_CHECK(book(m_trkvtxPlots));
+      ATH_CHECK(book(m_metPlots));
       
       return StatusCode::SUCCESS;      
  }
@@ -87,8 +75,6 @@ namespace TauEmbd{
   StatusCode TauEmbdVal::fillHistograms()
   {
     ATH_MSG_INFO ("Filling hists " << name() << "...");
-    
-    if (m_detailLevel < 10) return StatusCode::SUCCESS;
     
     // Jets
     int nbtag(0);
@@ -144,23 +130,15 @@ namespace TauEmbd{
 
     m_trkvtxPlots.fill(trks->size(), vtxs->size(), event->averageInteractionsPerCrossing());
 
-    const xAOD::MissingETContainer* met_container (0);
-    ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
-    const xAOD::MissingET* met = (*met_container)["FinalClus"];
-    if (!met) {
-      ATH_MSG_ERROR ("Couldn't retrieve MET Final");
-      return StatusCode::SUCCESS;
-    }
-    m_metPlots.fill(met);
-    
-    int i(0);
-    for (auto name : m_timingNames) {
-      float time;
-      if (getTiming(name, time).isSuccess()) {
-	m_timingPlots[i]->Fill(time);
-      }
-      ++i;
-    }
+    const xAOD::MissingETContainer* mets (0);
+    ATH_CHECK(evtStore()->retrieve(mets, m_metName));
+    for (auto met : *mets) m_metPlots.fill(met);
+
+    // const xAOD::MissingET* met = (*met_container)["FinalClus"];
+    // if (!met) {
+    //   ATH_MSG_ERROR ("Couldn't retrieve MET Final");
+    //   return StatusCode::SUCCESS;
+    // }
     
     return StatusCode::SUCCESS;
   }
@@ -171,33 +149,6 @@ namespace TauEmbd{
     return StatusCode::SUCCESS;
   }
   
-  
-  StatusCode TauEmbdVal::getTiming(std::string name, float& recoTime) {
-    // Code form
-    // m_recoInclPers
-    
-    const RecoTimingObj* recTiming(0);
-    recoTime = 0;
-    if (evtStore()->contains<RecoTimingObj>(name + "_timings")) {
-      if (evtStore()->retrieve( recTiming, name + "_timings" ).isFailure()) {
-	ATH_MSG_VERBOSE("Cannot get RecoTimingObj with name " << name + "_timings");
-	return StatusCode::SUCCESS;
-      }
-      
-      bool m_recoInclPers(true);
-      if (m_recoInclPers) {
-	if ((*recTiming).size() > 0) 
-	  recoTime=*((*recTiming).rbegin());
-      } else {
-	if ((*recTiming).size() > 1)
-	  recoTime=(*recTiming)[(*recTiming).size()-2];
-      }
-    }
-    
-    ATH_MSG_VERBOSE("Filling RecoTiming <" << recoTime << ">.");
-    
-    return StatusCode::SUCCESS;
-  }
   
 
 }
