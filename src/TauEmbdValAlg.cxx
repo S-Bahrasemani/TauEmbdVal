@@ -81,11 +81,17 @@ namespace TauEmbd{
     m_jetPlots.initializeEvent();
     const xAOD::JetContainer* jets(0);
     ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
-    for (auto jet : *jets) {
-      m_jetPlots.fill(jet);
-      const xAOD::BTagging* btag = jet->btagging();
-      if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
-    }
+    for (auto jet : *jets) 
+      {
+	if (!jet) 
+	  {
+	    ATH_MSG_ERROR ("Couldn't retrieve Jet");
+	    return StatusCode::SUCCESS;
+	  }
+	m_jetPlots.fill(jet);
+	const xAOD::BTagging* btag = jet->btagging();
+	if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
+      }
     m_jetPlots.fill();
     m_btagPlots.fill(nbtag);
 
@@ -93,28 +99,62 @@ namespace TauEmbd{
     m_elecPlots.initializeEvent();
     const xAOD::ElectronContainer* electrons(0);
     ATH_CHECK(evtStore()->retrieve(electrons, m_elecName));
-    for (auto elec : *electrons) m_elecPlots.fill(elec);
+    for (auto elec : *electrons) 
+      {
+	if (!elec) 
+	  {
+	    ATH_MSG_ERROR ("Couldn't retrieve Electron");
+	    return StatusCode::SUCCESS;
+	  }
+	m_elecPlots.fill(elec);
+      }
+    
     m_elecPlots.fill();
 
     // Photons
     m_photonPlots.initializeEvent();
     const xAOD::PhotonContainer* photons(0);
     ATH_CHECK(evtStore()->retrieve(photons, m_photonName));
-    for (auto photon : *photons) m_photonPlots.fill(photon);
+    for (auto photon : *photons)
+      {
+	if (!photon) 
+	  {
+	    ATH_MSG_ERROR ("Couldn't retrieve photon");
+	    return StatusCode::SUCCESS;
+	  }
+	m_photonPlots.fill(photon);
+      }
     m_photonPlots.fill();
 
     // Muons
     m_muonPlots.initializeEvent();
     const xAOD::MuonContainer* muons(0);
     ATH_CHECK(evtStore()->retrieve(muons, m_muonName));
-    for (auto muon : *muons) m_muonPlots.fill(muon);
+    for (auto muon : *muons)
+      {
+	if (!muon) 
+	  {
+	    ATH_MSG_ERROR ("Couldn't retrieve Muon");
+	    return StatusCode::SUCCESS;
+	  }
+	m_muonPlots.fill(muon);
+      }
     m_muonPlots.fill();
 
     // Taus
     m_tauPlots.initializeEvent();
     const xAOD::TauJetContainer* taus(0);
     ATH_CHECK(evtStore()->retrieve(taus, m_tauName));
-    for (auto tau : *taus) m_tauPlots.fill(tau);
+    for (auto tau : *taus) 
+      {
+	if (!tau) 
+	  {
+	    ATH_MSG_ERROR ("Couldn't retrieve tau");
+	    return StatusCode::SUCCESS;
+	  }
+	m_tauPlots.fill(tau);
+	
+      }
     m_tauPlots.fill();
 
     // Tracks/Vertices
@@ -132,13 +172,14 @@ namespace TauEmbd{
 
     const xAOD::MissingETContainer* mets (0);
     ATH_CHECK(evtStore()->retrieve(mets, m_metName));
-    for (auto met : *mets) m_metPlots.fill(met);
+    for (auto met : *mets) 
 
     // const xAOD::MissingET* met = (*met_container)["FinalClus"];
-    // if (!met) {
-    //   ATH_MSG_ERROR ("Couldn't retrieve MET Final");
-    //   return StatusCode::SUCCESS;
-    // }
+    if (!met) {
+      ATH_MSG_ERROR ("Couldn't retrieve MET Final");
+      return StatusCode::SUCCESS;
+      m_metPlots.fill(met);
+    }
     
     return StatusCode::SUCCESS;
   }

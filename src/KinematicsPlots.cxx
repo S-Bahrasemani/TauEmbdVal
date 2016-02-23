@@ -13,13 +13,13 @@ void KinematicsPlots::initializePlots(){
 
    n  = Book1D("n", "Number of "+ m_sParticleType +"; n ;Events", 50, 0., 50);
 
-   et  = Book1D("et", "E_{T} of "+ m_sParticleType +"; E_{T} (GeV) ;Events", 200, 0., 200);
-   eta = Book1D("eta", "#eta of " + m_sParticleType +";#eta; Events ", 200,-5,5.);
-   phi = Book1D("phi", "#varphi of " + m_sParticleType +";#varphi;Events ",128 ,-3.2,3.2);
+   et  = Book1D("et", "E_{T} of "+ m_sParticleType +"; E_{T} (GeV) ;Events", 100, 0., 1000);
+   eta = Book1D("eta", "#eta of " + m_sParticleType +";#eta; Events ", 20,-10.,10.);
+   phi = Book1D("phi", "#varphi of " + m_sParticleType +";#varphi;Events ",10 ,-3.2,3.2);
 
-   lead_et  = Book1D("lead_et", "E_{T} of lead "+ m_sParticleType +"; E_{T} (GeV) ;Events", 200, 0., 200);
-   lead_eta = Book1D("lead_eta", "#eta of lead " + m_sParticleType +";#eta; Events ", 200,-5,5.);
-   lead_phi = Book1D("lead_phi", "#varphi of lead " + m_sParticleType +";#varphi;Events ",128 ,-3.2,3.2);
+   lead_et  = Book1D("lead_et", "E_{T} of lead "+ m_sParticleType +"; E_{T} (GeV) ;Events", 100, 0., 1000);
+   lead_eta = Book1D("lead_eta", "#eta of lead " + m_sParticleType +";#eta; Events ", 20,-10.,10.);
+   lead_phi = Book1D("lead_phi", "#varphi of lead " + m_sParticleType +";#varphi;Events ",10 ,-3.2,3.2);
 }
 
 void KinematicsPlots::fill(const xAOD::IParticle* part){

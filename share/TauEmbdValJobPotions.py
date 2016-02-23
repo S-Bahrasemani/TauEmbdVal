@@ -1,13 +1,24 @@
-## JobOptions for Tau embedding validation :
+## JobOption for Tau-embedding validation 
+
+# import argparse
+# parser = argparse.ArgumentParser()
+# parser.add_argument('-r', '--reffile' , default=filedir+"myDESD_ZMUMU.root")
+# parser.add_argument('-t', '--testfile', default=filedir+"RerecoFile.root")
+# args = parser.parse_args()
+
+sampledir = "/afs/cern.ch/user/h/hbaluchb/WWork/TauEmbd/EmbdValSamples/"
+reffile= sampledir+"myDESD_ZMUMU.root"
+testfile= sampledir+"RerecoFile.root"
+
 ## imports (be careful as the class is in under TauEmbd scope)
 from TauEmbdVal.TauEmbdValConf import TauEmbd__TauEmbdVal
 
 ## read xAOD or ESD files
 import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.EventSelector.InputCollections = ["/home/sbahrase/WorkDesk/SAMPLES/xAODs/MC15/HTauTau/TrainingSamples/GGH/mc15_13TeV.341224.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH120_tautauIncl.merge.AOD.e4044_s2608_r6765_r6282/AOD.05774880._000002.pool.root.1"]
+svcMgr.EventSelector.InputCollections = [testfile]
 
 ## specify the number of events to be proccesed:
-theApp.EvtMax = 100
+theApp.EvtMax = -1
 
 ## add your algorithm to the sequencer
 # fetch the  AthAlgSeq, one of the master sequences where all algs should be added to
@@ -17,13 +28,14 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")
 embdvalalg = TauEmbd__TauEmbdVal()
 embdvalalg.OutputLevel = INFO
 
-embdvalalg.TauContainerName = "TauJets"
-embdvalalg.PhotonContainerName = "Photons"
+#embdvalalg.JetContainerName      = ""
+embdvalalg.TauContainerName      = "TauJets"
+embdvalalg.PhotonContainerName   = "Photons"
 embdvalalg.ElectronContainerName = "Electrons"
 
 ## MET and Muon containers seem to be not ready for use !!
 embdvalalg.MuonContainerName = "Muons"
-embdvalalg.METContainerName = "MET_Calo"
+embdvalalg.METContainerName  = "MET_Calo"
 
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += embdvalalg
@@ -38,6 +50,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 
-svcMgr.THistSvc.Output += ["TauEmbdVal DATAFILE='Test01.root' OPT='RECREATE'"]
+svcMgr.THistSvc.Output += ["TauEmbdVal DATAFILE='ValTestHists.root' OPT='RECREATE'"]
 #svcMgr.THistSvc.PrintAll = True
 svcMgr.THistSvc.OutputLevel = INFO
+

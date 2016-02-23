@@ -1,0 +1,11 @@
+*.root
+*.pdf
+*.txt
+x86_64-slc6-gcc49-opt/
+*.xml
+*.xml.BAK
+*.history
+*.py~
+macros/plots 
+*.pdf
+macros/plots/*
