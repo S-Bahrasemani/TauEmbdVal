@@ -5,7 +5,7 @@ Setup
 -----
   * in the directory containing TauEmbdVal package do::
   setupATLAS
-  asetup, here 
+  asetup XX.YY.Z 
    
 Input
 ----
@@ -13,7 +13,7 @@ Input
 in the TauEmbdValJobOptions.py set the file path
 
 * To set the EventLoop size::
-set the theApp.EvtMax = <the number of events that you are intersted in>
+set the theApp.EvtMax = <the number of events to process>
 
 Output
 _____
