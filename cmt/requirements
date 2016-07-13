@@ -25,9 +25,23 @@ use xAODTau             xAODTau-*               Event/xAOD
 use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 use RecEvent            RecEvent-*              Reconstruction
 
+use METInterface	METInterface-*			Reconstruction/MET
+
 private
 use StoreGate          StoreGate-*             Control
+use xAODCore	       			       xAODCore-*		Event/xAOD
+use PathResolver			       PathResolver-*			Tools
+use ElectronPhotonSelectorTools  ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
+use MuonSelectorTools   MuonSelectorTools-*     PhysicsAnalysis/MuonID
+use TauAnalysisTools 	TauAnalysisTools-* 	PhysicsAnalysis/TauID
+
+use FourMomUtils        FourMomUtils-*			Event
+
+# needed for track momentum errors
+use EventPrimitives	    EventPrimitives-*	Event
+
 end_private
+
 
 ## put here your package dependencies...
 
